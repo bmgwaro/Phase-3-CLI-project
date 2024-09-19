@@ -1,0 +1,7 @@
+*.db
+*/*.db
+migrations
+instance
+
+.vscode
+package-lock.json

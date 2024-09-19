@@ -1,8 +1,8 @@
 import sqlite3
 
 
-DATABASE_PATH = '../data/database.db'
-MIGRATION_FILE = '../migrations/create_tables.sql'
+DATABASE_PATH = './database.db'
+MIGRATION_FILE = './migrations/create_tables.sql'
 
 
 def create_tables():
