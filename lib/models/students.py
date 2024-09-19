@@ -83,29 +83,32 @@ class Student:
 
         return student_id
 
-    def enroll_in_course(self, student_id, course_id, grade=None):
+    @classmethod
+    def enroll_in_course(cls, student_id, course_id, grade=None):
         query = "UPDATE Students SET course_id = ?, grade = ? WHERE id = ?;"
-        self.CONN.execute(query, (course_id, grade, student_id))
-        self.CONN.commit()
+        cls.CURSOR.execute(query, (course_id, grade, student_id))
+        cls.CONN.commit()
 
-    def list_student_courses(self, student_id):
+    @classmethod
+    def list_student_courses(cls, student_id):
         query = """
         SELECT Courses.course_name, Students.grade 
         FROM Students 
         JOIN Courses ON Students.course_id = Courses.id 
         WHERE Students.id = ?;
         """
-        result = self.CONN.execute(query, (student_id,)).fetchone()
-        return result if result else "No courses found for the student."
+        result = cls.CURSOR.execute(query, (student_id,)).fetchone()
+        return result if result else None
 
-    def generate_certificate(self, student_id):
+    @classmethod
+    def generate_certificate(cls, student_id):
         query = """
         SELECT Students.name, Courses.course_name, Students.grade 
         FROM Students 
         JOIN Courses ON Students.course_id = Courses.id 
         WHERE Students.id = ?;
         """
-        result = self.CONN.execute(query, (student_id,)).fetchone()
+        result = cls.CURSOR.execute(query, (student_id,)).fetchone()
         if result and result[2] is not None:
             return f"Certificate: {result[0]} completed {result[1]} with grade {result[2]}."
         return "Student has not completed the course or has no grade."

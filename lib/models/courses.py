@@ -81,10 +81,10 @@ class Course:
         CURSOR.execute(query, (self.course_name, self.capacity)) 
         CONN.commit()
 
-
-    def list_all_courses(self):
+    @classmethod
+    def list_all_courses(cls):
         query = "SELECT * FROM Courses;"
-        return self.CURSOR.execute(query).fetchall()
+        return cls.CURSOR.execute(query).fetchall()
 
     def course_capacity_check(self, course_id):
         query = """
