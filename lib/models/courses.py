@@ -1,5 +1,6 @@
 import sqlite3
 from models.__init__ import CURSOR, CONN
+from models.students import Student
 
 class Course:
     CURSOR = None
@@ -9,6 +10,7 @@ class Course:
         self.id=id
         self.name=name
         self.capacity=capacity
+        
 
     def __repr__(self):
         return (f"Course {self.id}: {self.name}, {self.capacity}")
@@ -36,10 +38,23 @@ class Course:
         else:
             print("Enter valid course capacity")
 
+    @property 
+    def student_id(self):
+        return self.student_id
+
+    @student_id.setter
+    def student_id(self, student_id):
+        if isinstance(student_id, int) and student_id in Student.all:
+            self._student_id = student_id
+        else:
+            print("Invalid student ID")
+
+
     @classmethod
     def set_connection(cls, database):
         cls.CONN = sqlite3.connect(database)
         cls.CURSOR = cls.CONN.cursor()
+        cls.CONN.execute("PRAGMA foreign_keys = ON;") 
 
     @classmethod
     def create_table(cls):
@@ -47,7 +62,9 @@ class Course:
         CREATE TABLE IF NOT EXISTS Courses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             course_name TEXT NOT NULL,
-            capacity INTEGER NOT NULL
+            capacity INTEGER NOT NULL,
+            student_id INTEGER,
+            FOREIGN KEY (student_id) REFERENCES Students(id)
         );
         """
         cls.CONN.execute(query)
@@ -71,31 +88,21 @@ class Course:
         cls.all[course_id] = {'name': course_name, 'capacity': capacity}  
         return cls(course_name, capacity, course_id)
 
-
     def update(self):
-        query="""
+        query = """
               UPDATE Courses
-              SET course_name=?,capacity=?
-              WHERE id=?
+              SET course_name = ?, capacity = ?, student_id = ?
+              WHERE id = ?
             """
-        CURSOR.execute(query, (self.course_name, self.capacity)) 
-        CONN.commit()
+        self.CURSOR.execute(query, (self.name, self.capacity, self.student_id, self.id))
+        self.CONN.commit()
 
     @classmethod
     def list_all_courses(cls):
         query = "SELECT * FROM Courses;"
         return cls.CURSOR.execute(query).fetchall()
 
-    def course_capacity_check(self, course_id):
-        query = """
-        SELECT capacity, COUNT(Students.id) AS enrolled 
-        FROM Courses 
-        LEFT JOIN Students ON Courses.id = Students.course_id 
-        WHERE Courses.id = ?;
-        """
-        result = self.CURSOR.execute(query, (course_id,)).fetchone()
-        return result[1] < result[0] if result else False
-
+    
 
     @classmethod
     def find_by_id(cls, id):
@@ -110,3 +117,13 @@ class Course:
     @classmethod
     def instance_from_db(cls, row):
         return cls(row[1], row[2], row[0])
+
+    @classmethod
+    def find_by_name(cls, name):
+        query = "SELECT * FROM Courses WHERE course_name = ?;"
+        row = cls.CURSOR.execute(query, (name,)).fetchone()
+        if row:
+            return cls.instance_from_db(row)
+        else:
+            print(f"No course found with name '{name}'")
+            return None

@@ -32,25 +32,3 @@ def display_students(students):
     for student in students:
         print(f"ID: {student[0]}, Name: {student[1]}, Course ID: {student[2]}, Grade: {student[3]}")
 
-def generate_certificate_text(student_name, course_name, grade):
-    certificate_template = f"""
-    -----------------------------------------------------------
-                              CERTIFICATE OF COMPLETION                             
-    -----------------------------------------------------------
-    
-    This is to certify that:
-    
-                        {student_name.upper()}
-    
-    Has successfully completed the course:
-    
-                        {course_name.upper()}
-    
-    With a grade of: {grade.upper()}
-    
-    -----------------------------------------------------------
-    Date: ______________                Signature: ____________
-    -----------------------------------------------------------
-
-    """
-    return certificate_template
